@@ -3,13 +3,16 @@
 document.addEventListener('DOMContentLoaded', function () {
     var fileuploader = new FileUploader(
         document.querySelector('input[type="file"]'),
-        document.querySelector('ul')
+        document.querySelector('ul'),
+        document.querySelector('button')
     );
 });
 
 function FileUploader(inputElement, displayElement, submitElement) {
     // add an event listener for the file
     var files = [];
+    var self = this;
+    this.files = files;
     inputElement.addEventListener('change', function () {
         Array.prototype.forEach.call(this.files, function (file) {
             files.push(file);
@@ -37,12 +40,37 @@ function FileUploader(inputElement, displayElement, submitElement) {
     }
 
     // handle the form submit
+    submitElement.addEventListener('click', self.submit.bind(self));
 
 }
 
 FileUploader.prototype.submit = function () {
-    console.log(files);
+
+    // create a formdata object
+    var formdata = this.files.reduce(function (formdata, file) {
+        formdata.append(file.name, file);
+        return formdata;
+    }, new FormData());
+    // send it by doing a AJAX post
+    makeAjaxCall('POST', '/files/upload', function (xhr) {
+        if (xhr.status === 200) {
+            console.log(xhr.responseText);
+        }
+    }, formdata);
 };
+
+function makeAjaxCall(httpVerb, url, callback, data) {
+    // accepts data as a string
+    var xhr = new XMLHttpRequest();
+    xhr.open(httpVerb, url);
+    xhr.addEventListener('readystatechange', function () {
+        if(xhr.readyState === 4) {
+            callback(xhr);
+        }
+    });
+    if(typeof data === 'undefined') xhr.send();
+    else xhr.send(data);
+}
 
 
 
