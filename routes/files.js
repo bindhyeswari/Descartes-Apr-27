@@ -2,7 +2,7 @@ var router = require('express').Router();
 var multer = require('multer');
 // get the file parser
 
-router.use(multer({ dest: '../uploads/' }));
+router.use(multer({ dest: './uploads/' }));
 
 
 
